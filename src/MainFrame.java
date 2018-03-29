@@ -1,6 +1,6 @@
 import javax.swing.JFrame;
 
-import analyzers.GrammarAnalyzer;
+import frames.GrammarAnalyzer;
 
 public class MainFrame {
 	public static void main(String args[]) {

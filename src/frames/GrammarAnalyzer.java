@@ -1,4 +1,4 @@
-package analyzers;
+package frames;
 
 import javax.swing.JFrame;
 
