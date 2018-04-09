@@ -67,7 +67,7 @@ public class RPNToNFDE {
 			element = elements[i];
 			switch(element) {
 				case ':':
-					if(nodeFactory.size() > 1) {
+					if(nodeFactory.size() > 2) {
 						nextNode = nodeFactory.pop();
 						n = nodeFactory.pop();
 						auxNode = nodeFactory.pop();
@@ -75,7 +75,7 @@ public class RPNToNFDE {
 						helper = concatNodes(currentNode, auxNode, n, nextNode);
 						nodeFactory.push(helper.initialNode);
 						nodeFactory.push(helper.finalNode);
-					}else if(nodeFactory.size() == 1){
+					}else if(nodeFactory.size() == 2){
 						n = new NFDENode();
 						nextNode = nodeFactory.pop();
 						aux2 = characterStack.pop();
@@ -92,7 +92,7 @@ public class RPNToNFDE {
 					}
 					break;
 				case ',':
-					if(nodeFactory.size() > 1) {
+					if(nodeFactory.size() > 2) {
 						nextNode = nodeFactory.pop();
 						n = nodeFactory.pop();
 						auxNode = nodeFactory.pop();
@@ -100,7 +100,7 @@ public class RPNToNFDE {
 						helper = mergeNodes(currentNode, auxNode, n, nextNode);
 						nodeFactory.push(helper.initialNode);
 						nodeFactory.push(helper.finalNode);
-					}else if(nodeFactory.size() == 1){
+					}else if(nodeFactory.size() == 2){
 						nextNode = nodeFactory.pop();
 						currentNode = nodeFactory.pop();
 						aux2 = characterStack.pop();
