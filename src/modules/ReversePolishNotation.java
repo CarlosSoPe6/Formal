@@ -47,7 +47,7 @@ public class ReversePolishNotation {
 			}
 
 			// If it is an operator, check precedence
-			else if (c == '+' || c == ',' || c == '*' || c == '•') {
+			else if (c == '+' || c == ',' || c == '*' || c == ':') {
 				char car = 0;
 				if (pila.size() != 0) {
 					car = pila.peek();
@@ -99,7 +99,7 @@ public class ReversePolishNotation {
 	public static boolean hasHigherPrecedence(char top, char operator) {
 		if (top == ',')
 			return false;
-		else if (top == '•') {
+		else if (top == ':') {
 			if (operator == '*' || operator == '+' || operator == '(' || operator == ')')
 				return false;
 			else
