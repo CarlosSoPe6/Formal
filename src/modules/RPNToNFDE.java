@@ -66,7 +66,7 @@ public class RPNToNFDE {
 		for(int i = 0; i < elements.length; i++) {
 			element = elements[i];
 			switch(element) {
-				case '•':
+				case ':':
 					if(nodeFactory.size() > 1) {
 						nextNode = nodeFactory.pop();
 						n = nodeFactory.pop();
