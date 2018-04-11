@@ -17,17 +17,16 @@ public class RPNToNFDE {
 		return parentNode;
 	}
 	
-	private class NFDENode {
+	public class NFDENode {
         private static final char EPSILON = 254;
 		
 		private LinkedList<NFDENode>[] adjacentNodes;
         private boolean isFinal = false;
-        final int stateNumber;
+        private final int stateNumber;
 		
         @SuppressWarnings("unchecked")
 		private NFDENode(){
-        	stateNumber = numberOfNode;
-        	numberOfNode++;
+        	stateNumber = ++numberOfNode;
             this.adjacentNodes = new LinkedList[255];
             for(int i = 0; i < 255; i++) {
             	this.adjacentNodes[i] = new LinkedList<>();
@@ -50,7 +49,11 @@ public class RPNToNFDE {
 		public LinkedList<NFDENode>[] getAdjacentNodes() {
         	return this.adjacentNodes;
         }
-    }
+
+		public int getStateNumber() {
+			return stateNumber;
+		}
+	}
 	
 	private class RetHelper{
 		NFDENode initialNode;
@@ -190,7 +193,7 @@ public class RPNToNFDE {
 			}
 			n = null;
 		}
-		
+
 		while(!nodeFactory.isEmpty()) {
 			n = nodeFactory.pop();
 		}
