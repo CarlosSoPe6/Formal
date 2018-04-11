@@ -67,59 +67,86 @@ public class RPNToNFDE {
 			element = elements[i];
 			switch(element) {
 				case ':':
-					if(nodeFactory.size() > 2) {
-						nextNode = nodeFactory.pop();
-						n = nodeFactory.pop();
-						auxNode = nodeFactory.pop();
-						currentNode = nodeFactory.pop();
-						helper = concatNodes(currentNode, auxNode, n, nextNode);
-						nodeFactory.push(helper.initialNode);
-						nodeFactory.push(helper.finalNode);
-					}else if(nodeFactory.size() == 2){
-						n = new NFDENode();
-						nextNode = nodeFactory.pop();
-						aux2 = characterStack.pop();
-						nextNode.adjacentNodes[aux2 - ' '].add(n);
-						nodeFactory.push(nextNode);
-					}else {
-						aux2 = characterStack.pop();
-						aux1 = characterStack.pop();
-						currentNode = new NFDENode();
-						auxNode = new NFDENode();
-						nextNode = new NFDENode();
-						currentNode.adjacentNodes[aux1 - ' '].add(auxNode);
-						auxNode.adjacentNodes[aux2 - ' '].add(nextNode);
+					switch (characterStack.size()){
+						case 2:
+							aux2 = characterStack.pop();
+							aux1 = characterStack.pop();
+							currentNode = new NFDENode();
+							auxNode = new NFDENode();
+							nextNode = new NFDENode();
+							currentNode.adjacentNodes[aux1].add(auxNode);
+							auxNode.adjacentNodes[aux2].add(nextNode);
+							nodeFactory.push(currentNode);
+							nodeFactory.push(nextNode);
+							break;
+						case 1:
+							n = new NFDENode();
+							nextNode = nodeFactory.pop();
+							aux2 = characterStack.pop();
+							nextNode.adjacentNodes[aux2].add(n);
+							nodeFactory.push(nextNode);
+							break;
+						case 0:
+							nextNode = nodeFactory.pop();
+							n = nodeFactory.pop();
+							auxNode = nodeFactory.pop();
+							currentNode = nodeFactory.pop();
+							helper = concatNodes(currentNode, auxNode, n, nextNode);
+							nodeFactory.push(helper.initialNode);
+							nodeFactory.push(helper.finalNode);
+							break;
 					}
 					break;
 				case ',':
-					if(nodeFactory.size() > 2) {
-						nextNode = nodeFactory.pop();
-						n = nodeFactory.pop();
-						auxNode = nodeFactory.pop();
-						currentNode = nodeFactory.pop();
-						helper = mergeNodes(currentNode, auxNode, n, nextNode);
-						nodeFactory.push(helper.initialNode);
-						nodeFactory.push(helper.finalNode);
-					}else if(nodeFactory.size() == 2){
-						nextNode = nodeFactory.pop();
-						currentNode = nodeFactory.pop();
-						aux2 = characterStack.pop();
-						currentNode.adjacentNodes[aux2 - ' '].add(nextNode);
-					}else {
-						aux2 = characterStack.pop();
-						aux1 = characterStack.pop();
-						currentNode = new NFDENode();
-						nextNode = new NFDENode();
-						currentNode.adjacentNodes[aux1 - ' '].add(nextNode);
-						currentNode.adjacentNodes[aux2 - ' '].add(nextNode);
+					switch (characterStack.size()){
+						case 2:
+							aux2 = characterStack.pop();
+							aux1 = characterStack.pop();
+							currentNode = new NFDENode();
+							nextNode = new NFDENode();
+							currentNode.adjacentNodes[aux1].add(nextNode);
+							currentNode.adjacentNodes[aux2].add(nextNode);
+
+							nodeFactory.push(currentNode);
+							nodeFactory.push(nextNode);
+							break;
+						case 1:
+							nextNode = nodeFactory.pop();
+							currentNode = nodeFactory.pop();
+							aux2 = characterStack.pop();
+							currentNode.adjacentNodes[aux2].add(nextNode);
+							nodeFactory.push(currentNode);
+							nodeFactory.push(nextNode);
+							break;
+						case 0:
+							nextNode = nodeFactory.pop();
+							n = nodeFactory.pop();
+							auxNode = nodeFactory.pop();
+							currentNode = nodeFactory.pop();
+							helper = mergeNodes(currentNode, auxNode, n, nextNode);
+							nodeFactory.push(helper.initialNode);
+							nodeFactory.push(helper.finalNode);
+							break;
 					}
 					break;
 				case '*':
-					nextNode = nodeFactory.pop();
-					currentNode = nodeFactory.pop();
-					helper = kleene(currentNode, nextNode);
-					nodeFactory.push(helper.initialNode);
-					nodeFactory.push(helper.finalNode);
+					if(characterStack.isEmpty()){
+						nextNode = nodeFactory.pop();
+						currentNode = nodeFactory.pop();
+						helper = kleene(currentNode, nextNode);
+						nodeFactory.push(helper.initialNode);
+						nodeFactory.push(helper.finalNode);
+					}else{
+						// Case (a,b*) where we process 'b'
+						aux2 = characterStack.pop();
+						currentNode = new NFDENode();
+						nextNode = new NFDENode();
+						auxNode = new NFDENode();
+
+						currentNode.adjacentNodes[NFDENode.EPSILON].add(auxNode);
+						auxNode.adjacentNodes[NFDENode.EPSILON].add(nextNode);
+						auxNode.adjacentNodes[aux2].add(auxNode);
+					}
 					break;
 				case '+':
 					nextNode = nodeFactory.pop();
@@ -145,10 +172,10 @@ public class RPNToNFDE {
 	private RetHelper kleene(NFDENode start, NFDENode end) {
 		NFDENode newStart = new NFDENode();
 		NFDENode newEnd = new NFDENode();
-		nodeMerger(newStart, start);
-		
-		newStart.adjacentNodes[NFDENode.EPSILON].add(newEnd);
-		end.adjacentNodes[NFDENode.EPSILON].add(newEnd);
+
+		newStart.adjacentNodes[NFDENode.EPSILON].add(start);
+		start.adjacentNodes[NFDENode.EPSILON].add(newEnd);
+		end.adjacentNodes[NFDENode.EPSILON].add(start);
 		
 		return new RetHelper(newStart, newEnd);
 	}
