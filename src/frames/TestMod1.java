@@ -2,6 +2,7 @@ package frames;
 
 import javax.swing.JOptionPane;
 
+import modules.NodeToMatrixConverter;
 import modules.RPNToNFDE;
 import modules.ReversePolishNotation;
 
@@ -14,7 +15,8 @@ public class TestMod1 {
 		
 		RPNToNFDE converter = new RPNToNFDE();
 		RPNToNFDE.NFDENode n = converter.convert(rpn);
-		System.out.println(n);
+
+        NodeToMatrixConverter.convert(n);
 	}
 
 }
