@@ -74,6 +74,7 @@ public class RPNToNFDE {
 							currentNode = new NFDENode();
 							auxNode = new NFDENode();
 							nextNode = new NFDENode();
+
 							currentNode.adjacentNodes[aux1].add(auxNode);
 							auxNode.adjacentNodes[aux2].add(nextNode);
 							nodeFactory.push(currentNode);
@@ -104,6 +105,7 @@ public class RPNToNFDE {
 							aux1 = characterStack.pop();
 							currentNode = new NFDENode();
 							nextNode = new NFDENode();
+
 							currentNode.adjacentNodes[aux1].add(nextNode);
 							currentNode.adjacentNodes[aux2].add(nextNode);
 
@@ -137,7 +139,7 @@ public class RPNToNFDE {
 						nodeFactory.push(helper.initialNode);
 						nodeFactory.push(helper.finalNode);
 					}else{
-						// Case (a,b*) where we process 'b'
+						// Case (a,b*) -> ab*, where we process 'b'
 						aux2 = characterStack.pop();
 						currentNode = new NFDENode();
 						nextNode = new NFDENode();
@@ -149,11 +151,21 @@ public class RPNToNFDE {
 					}
 					break;
 				case '+':
-					nextNode = nodeFactory.pop();
-					currentNode = nodeFactory.pop();
-					helper = positive(currentNode, nextNode);
-					nodeFactory.push(helper.initialNode);
-					nodeFactory.push(helper.finalNode);
+					if(characterStack.isEmpty()){
+						nextNode = nodeFactory.pop();
+						currentNode = nodeFactory.pop();
+						helper = positive(currentNode, nextNode);
+						nodeFactory.push(helper.initialNode);
+						nodeFactory.push(helper.finalNode);
+					} else {
+						// Case (a,b+) -> ab+,where we process 'b'
+						aux2 = characterStack.pop();
+						currentNode = new NFDENode();
+						nextNode = new NFDENode();
+
+						currentNode.adjacentNodes[aux2].add(nextNode);
+						nextNode.adjacentNodes[NFDENode.EPSILON].add(currentNode);
+					}
 					break;
 				default:
 					characterStack.push((char) (element - ' '));
@@ -182,9 +194,8 @@ public class RPNToNFDE {
 	
 	
 	private RetHelper positive(NFDENode start, NFDENode end) {
-		NFDENode newEnd = new NFDENode();
-		end.adjacentNodes[NFDENode.EPSILON].add(newEnd);
-		return new RetHelper(start, newEnd);
+		end.adjacentNodes[NFDENode.EPSILON].add(start);
+		return new RetHelper(start, end);
 	}
 	
 	private void nodeMerger(NFDENode root, NFDENode toMergeRoot) {
