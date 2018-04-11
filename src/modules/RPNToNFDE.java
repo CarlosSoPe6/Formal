@@ -4,7 +4,9 @@ import java.util.LinkedList;
 import java.util.Stack;
 
 public class RPNToNFDE {
-	
+
+	private static int numberOfNode = 0;
+
 	private NFDENode parentNode;
 	
 	public RPNToNFDE(){
@@ -15,21 +17,37 @@ public class RPNToNFDE {
 		return parentNode;
 	}
 	
-	public class NFDENode {
+	private class NFDENode {
         private static final char EPSILON = 254;
 		
 		private LinkedList<NFDENode>[] adjacentNodes;
         private boolean isFinal = false;
+        final int stateNumber;
 		
         @SuppressWarnings("unchecked")
 		private NFDENode(){
+        	stateNumber = numberOfNode;
+        	numberOfNode++;
             this.adjacentNodes = new LinkedList[255];
             for(int i = 0; i < 255; i++) {
-            	this.adjacentNodes[i] = new LinkedList<NFDENode>();
+            	this.adjacentNodes[i] = new LinkedList<>();
             }
         }
-        
-        public LinkedList<NFDENode>[] getAdjacentNodes() {
+
+		@Override
+		public String toString() {
+			return this.stateNumber + "";
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if(! (obj instanceof NFDENode)) return false;
+
+			NFDENode cmpNode = (NFDENode) obj;
+			return cmpNode.stateNumber == this.stateNumber;
+		}
+
+		public LinkedList<NFDENode>[] getAdjacentNodes() {
         	return this.adjacentNodes;
         }
     }
@@ -220,4 +238,6 @@ public class RPNToNFDE {
 		toMergeEnd.isFinal = toMergeEnd.isFinal || end.isFinal;
 		return new RetHelper(root, toMergeEnd);
 	}
+
+
 }

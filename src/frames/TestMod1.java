@@ -13,7 +13,8 @@ public class TestMod1 {
 		JOptionPane.showMessageDialog(null, rpn);
 		
 		RPNToNFDE converter = new RPNToNFDE();
-		converter.convert(rpn);
+		RPNToNFDE.NFDENode n = converter.convert(rpn);
+		System.out.println(n);
 	}
 
 }
