@@ -8,7 +8,8 @@ public class NodeToMatrixConverter {
      * @param root La raiz del grafo
      * @return una matriz de listas enlazadas que contiene al autómata
      */
-    public static LinkedList<Integer>[][] convert(RPNToNFDE.NFDENode root){
+    @SuppressWarnings("unchecked")
+	public static LinkedList<Integer>[][] convert(RPNToNFDE.NFDENode root){
         Queue<RPNToNFDE.NFDENode> toVisit = new LinkedList<>();
 
         ArrayList<LinkedList<Integer>[]> matrixBuilder = new ArrayList<>();

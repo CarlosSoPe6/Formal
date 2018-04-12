@@ -12,7 +12,6 @@ import modules.ReversePolishNotation;
 
 public class TestMod1 {
 
-	@SuppressWarnings({ "unused", "unchecked" })
 	public static void main(String[] args) {
 		String string = JOptionPane.showInputDialog("Ingresa una cadena: ");
 		String rpn = new ReversePolishNotation(string).getPostfix();
