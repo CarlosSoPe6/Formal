@@ -14,7 +14,7 @@ public class NFDeToNFD {
 	// Algoritmos para hacer la conversión de la matriz
 	
 	@SuppressWarnings("unchecked")
-	public LinkedList<Integer> eTransition(LinkedList<Integer> list) {
+	private LinkedList<Integer> eTransition(LinkedList<Integer> list) {
 		LinkedList<Integer> statesSet = (LinkedList<Integer>) list.clone();
 		for(int i = 0; i < list.size(); i++) {
 			int j = 0;
@@ -29,7 +29,7 @@ public class NFDeToNFD {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public LinkedList<Integer> lowerDeltaFunc(LinkedList<Integer> list, char c) {
+	private LinkedList<Integer> lowerDeltaFunc(LinkedList<Integer> list, char c) {
 		LinkedList<Integer> statesSet = new LinkedList<Integer>();
 		for(int i = 0; i < list.size(); i++) {
 			if(statesSet.isEmpty())
@@ -48,7 +48,7 @@ public class NFDeToNFD {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public LinkedList<Integer>[][] upperDeltaFunc() {
+	public LinkedList<Integer>[][] convert() {
 		LinkedList<Integer>[][] deltaMatrix = new LinkedList[this.transitionMatrix.length][254];
 		for(int i = 0; i < this.transitionMatrix.length; i++) {
 			for(int j = 0; j < 254; j ++) {
