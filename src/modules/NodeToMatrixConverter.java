@@ -9,8 +9,8 @@ public class NodeToMatrixConverter {
      * @return una matriz de listas enlazadas que contiene al autómata
      */
     @SuppressWarnings("unchecked")
-	public static LinkedList<Integer>[][] convert(RPNToNFDE.NFDENode root){
-        Queue<RPNToNFDE.NFDENode> toVisit = new LinkedList<>();
+	public static LinkedList<Integer>[][] convert(RPNToNFDE.State root){
+        Queue<RPNToNFDE.State> toVisit = new LinkedList<>();
 
         ArrayList<LinkedList<Integer>[]> matrixBuilder = new ArrayList<>();
         ArrayList<Integer> map = new ArrayList<>();
@@ -33,7 +33,7 @@ public class NodeToMatrixConverter {
         toVisit.offer(root);
 
         // BFS
-        RPNToNFDE.NFDENode currentNode;
+        RPNToNFDE.State currentNode;
         while (!toVisit.isEmpty()) {
             currentNode = toVisit.poll();
             if (!visited.contains(currentNode.getStateNumber())){
@@ -45,7 +45,7 @@ public class NodeToMatrixConverter {
                 for (int i = 0; i < currentNode.getAdjacentNodes().length; i++) {
                     // Iteramos por cada nodo de cada salida
 
-                    for (RPNToNFDE.NFDENode n : currentNode.getAdjacentNodes()[i]) {
+                    for (RPNToNFDE.State n : currentNode.getAdjacentNodes()[i]) {
                         toVisit.offer(n);
                         System.out.println((n + ":") + realStateNumber + " " + visited.size());
                         if(!visited.contains(n.getStateNumber())) {

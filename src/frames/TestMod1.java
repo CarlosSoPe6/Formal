@@ -18,7 +18,7 @@ public class TestMod1 {
 		JOptionPane.showMessageDialog(null, rpn);
 		
 		RPNToNFDE converter = new RPNToNFDE();
-		RPNToNFDE.NFDENode n = converter.convert(rpn);
+		RPNToNFDE.State n = converter.convert(rpn);
 
 		LinkedList<Integer>[][] nfdeMatrix = NodeToMatrixConverter.convert(n);
 		System.out.println("\nNFDe");

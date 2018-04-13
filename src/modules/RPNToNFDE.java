@@ -1,246 +1,171 @@
 package modules;
 
-import java.util.LinkedList;
 import java.util.Stack;
 
 public class RPNToNFDE {
 
-	private static int numberOfNode = 0;
+    private static int currentNode;
 
-	private NFDENode parentNode;
-	
-	public RPNToNFDE(){
-        this.parentNode = new NFDENode();
-    }
-	
-	public NFDENode getParentNode() {
-		return parentNode;
-	}
-	
-	public class NFDENode {
+    /**
+     * Node util
+     */
+    public class State {
+
+        /**
+         * Stores the char that points the text node
+         */
+        private char c;
+
+        /**
+         * Stores the first out
+         */
+        private State out0;
+
+        /**
+         * Stores the second out
+         */
+        private State out1;
+
+        /**
+         * Matrix mapper
+         */
+        private int stateNumber;
+
+        /**
+         * The empty character
+         */
         private static final char EPSILON = 254;
-		
-		private LinkedList<NFDENode>[] adjacentNodes;
-        private boolean isFinal = false;
-        private final int stateNumber;
-		
-        @SuppressWarnings("unchecked")
-		private NFDENode(){
-        	stateNumber = ++numberOfNode;
-            this.adjacentNodes = new LinkedList[255];
-            for(int i = 0; i < 255; i++) {
-            	this.adjacentNodes[i] = new LinkedList<>();
+
+        /**
+         * Creates a new state
+         * @param c the char
+         * @param out0 The first output
+         * @param out1 The second output
+         */
+        private State(char c, State out0, State out1){
+            this.c = c;
+            this.out0 = out0;
+            this.out1 = out1;
+            this.stateNumber = currentNode++;
+        }
+
+        /**
+         * Gets the state number
+         * @return The current node state number
+         */
+        public int getStateNumber() {
+            return stateNumber;
+        }
+    }
+
+    /**
+     * Helper of nodes
+     */
+    private class NodeFactory {
+        /**
+         *
+         */
+        private State start;
+
+        /**
+         *
+         */
+        private State[] outs;
+
+        /**
+         * Creates a new NodeFactory
+         * @param s Start
+         * @param outs The current outputs
+         */
+        private NodeFactory(State s, State ... outs){
+            this.start = s;
+            this.outs = outs;
+        }
+    }
+
+    /**
+     * Converts a reversed polish notation string to a NFA.
+     * @param post Regex in reverse polish notation
+     * @return The NFAs root state
+     */
+    public State convert(String post){
+        char element;
+
+        // Stores the previous states
+        Stack<NodeFactory> nodeFactoryStack = new Stack<>();
+
+        NodeFactory f = null;
+        NodeFactory e2;
+        NodeFactory e1;
+
+        State s;
+        State split;
+
+        // Iterate over the string post
+        for(int i = 0; i < post.length(); i++){
+            element = post.charAt(i);
+            switch (element){
+                // Concatenation
+                case ':':
+                    e2 = nodeFactoryStack.pop();
+                    e1 = nodeFactoryStack.pop();
+                    // TODO: Concat languages
+                    f = new NodeFactory(e1.start, e2.outs);
+                    nodeFactoryStack.push(f);
+                    break;
+
+                // Union
+                case ',':
+                    e2 = nodeFactoryStack.pop();
+                    e1 = nodeFactoryStack.pop();
+                    // TODO: Union languages
+                    // nodeFactoryStack.push(f);
+                    break;
+
+                // Zero or more
+                case '*':
+                    e1 = nodeFactoryStack.pop();
+                    // TODO: Kleene
+                    // nodeFactoryStack.push(f);
+                    break;
+
+                // One or more
+                case '+':
+                    e1 = nodeFactoryStack.pop();
+                    // TODO: Positive
+                    // nodeFactoryStack.push(f);
+                    break;
+
+                // Normal character
+                default:
+                    // Create  a new node and add it to nodeFactory
+                    s = new State(element, null, null);
+                    f = new NodeFactory(s, s.out0);
+                    nodeFactoryStack.push(f);
+                    break;
+
             }
         }
 
-		@Override
-		public String toString() {
-			return this.stateNumber + "";
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if(! (obj instanceof NFDENode)) return false;
-
-			NFDENode cmpNode = (NFDENode) obj;
-			return cmpNode.stateNumber == this.stateNumber;
-		}
-
-		public LinkedList<NFDENode>[] getAdjacentNodes() {
-        	return this.adjacentNodes;
+        while(!nodeFactoryStack.isEmpty()){
+            f = nodeFactoryStack.pop();
         }
 
-		public int getStateNumber() {
-			return stateNumber;
-		}
-	}
-	
-	private class RetHelper{
-		NFDENode initialNode;
-		NFDENode finalNode;
-		
-		private RetHelper(NFDENode initialNode, NFDENode finalNode) {
-			this.initialNode = initialNode;
-			this.finalNode = finalNode;
-		}
-	}
-	
-	/**
-	 * 
-	 * @param reversePolishNotation Cadena ya resuelta
-	 */
-	public NFDENode convert(String reversePolishNotation) {
-		NFDENode currentNode = null;
-		NFDENode nextNode = null;
-		NFDENode n = null;
-		NFDENode auxNode = null;
-		
-		Stack<Character> characterStack = new Stack<>();
-		Stack<NFDENode> nodeFactory = new Stack<>();
-		RetHelper helper;
+        return f.start;
+    }
 
-		char[] elements = reversePolishNotation.toCharArray();
-		char element;
-		char aux1;
-		char aux2;
-		
-		for(int i = 0; i < elements.length; i++) {
-			element = elements[i];
-			switch(element) {
-				case ':':
-					switch (characterStack.size()){
-						case 2:
-							aux2 = characterStack.pop();
-							aux1 = characterStack.pop();
-							currentNode = new NFDENode();
-							auxNode = new NFDENode();
-							nextNode = new NFDENode();
+    /**
+     * Merges two lists
+     * @param a first list
+     * @param b second list
+     * @return Two lists merged
+     */
+    private State[] stateMerge(State[] a, State[] b){
+        State[] s = new State[a.length + b.length];
 
-							currentNode.adjacentNodes[aux1].add(auxNode);
-							auxNode.adjacentNodes[aux2].add(nextNode);
-							nodeFactory.push(currentNode);
-							nodeFactory.push(nextNode);
-							break;
-						case 1:
-							n = new NFDENode();
-							nextNode = nodeFactory.pop();
-							aux2 = characterStack.pop();
-							nextNode.adjacentNodes[aux2].add(n);
-							nodeFactory.push(nextNode);
-							break;
-						case 0:
-							nextNode = nodeFactory.pop();
-							n = nodeFactory.pop();
-							auxNode = nodeFactory.pop();
-							currentNode = nodeFactory.pop();
-							helper = concatNodes(currentNode, auxNode, n, nextNode);
-							nodeFactory.push(helper.initialNode);
-							nodeFactory.push(helper.finalNode);
-							break;
-					}
-					break;
-				case ',':
-					switch (characterStack.size()){
-						case 2:
-							aux2 = characterStack.pop();
-							aux1 = characterStack.pop();
-							currentNode = new NFDENode();
-							nextNode = new NFDENode();
+        System.arraycopy(a, 0, s, 0, a.length);
+        System.arraycopy(b, a.length, s, a.length, b.length);
 
-							currentNode.adjacentNodes[aux1].add(nextNode);
-							currentNode.adjacentNodes[aux2].add(nextNode);
-
-							nodeFactory.push(currentNode);
-							nodeFactory.push(nextNode);
-							break;
-						case 1:
-							nextNode = nodeFactory.pop();
-							currentNode = nodeFactory.pop();
-							aux2 = characterStack.pop();
-							currentNode.adjacentNodes[aux2].add(nextNode);
-							nodeFactory.push(currentNode);
-							nodeFactory.push(nextNode);
-							break;
-						case 0:
-							nextNode = nodeFactory.pop();
-							n = nodeFactory.pop();
-							auxNode = nodeFactory.pop();
-							currentNode = nodeFactory.pop();
-							helper = mergeNodes(currentNode, auxNode, n, nextNode);
-							nodeFactory.push(helper.initialNode);
-							nodeFactory.push(helper.finalNode);
-							break;
-					}
-					break;
-				case '*':
-					if(characterStack.isEmpty()){
-						nextNode = nodeFactory.pop();
-						currentNode = nodeFactory.pop();
-						helper = kleene(currentNode, nextNode);
-						nodeFactory.push(helper.initialNode);
-						nodeFactory.push(helper.finalNode);
-					}else{
-						// Case (a,b*) -> ab*, where we process 'b'
-						aux2 = characterStack.pop();
-						currentNode = new NFDENode();
-						nextNode = new NFDENode();
-						auxNode = new NFDENode();
-
-						currentNode.adjacentNodes[NFDENode.EPSILON].add(auxNode);
-						auxNode.adjacentNodes[NFDENode.EPSILON].add(nextNode);
-						auxNode.adjacentNodes[aux2].add(auxNode);
-					}
-					break;
-				case '+':
-					if(characterStack.isEmpty()){
-						nextNode = nodeFactory.pop();
-						currentNode = nodeFactory.pop();
-						helper = positive(currentNode, nextNode);
-						nodeFactory.push(helper.initialNode);
-						nodeFactory.push(helper.finalNode);
-					} else {
-						// Case (a,b+) -> ab+,where we process 'b'
-						aux2 = characterStack.pop();
-						currentNode = new NFDENode();
-						nextNode = new NFDENode();
-
-						currentNode.adjacentNodes[aux2].add(nextNode);
-						nextNode.adjacentNodes[NFDENode.EPSILON].add(currentNode);
-					}
-					break;
-				default:
-					characterStack.push((char) (element - ' '));
-			}
-			n = null;
-		}
-
-		while(!nodeFactory.isEmpty()) {
-			n = nodeFactory.pop();
-		}
-		
-		this.parentNode = n;
-		return n;
-	}
-	
-	private RetHelper kleene(NFDENode start, NFDENode end) {
-		NFDENode newStart = new NFDENode();
-		NFDENode newEnd = new NFDENode();
-
-		newStart.adjacentNodes[NFDENode.EPSILON].add(start);
-		start.adjacentNodes[NFDENode.EPSILON].add(newEnd);
-		end.adjacentNodes[NFDENode.EPSILON].add(start);
-		
-		return new RetHelper(newStart, newEnd);
-	}
-	
-	
-	private RetHelper positive(NFDENode start, NFDENode end) {
-		end.adjacentNodes[NFDENode.EPSILON].add(start);
-		return new RetHelper(start, end);
-	}
-	
-	private void nodeMerger(NFDENode root, NFDENode toMergeRoot) {
-		LinkedList<NFDENode> ite;
-		for(int i = 0; i < toMergeRoot.adjacentNodes.length; i++) {
-			ite = toMergeRoot.adjacentNodes[i];
-			for(NFDENode nodeToAdd : ite){
-				root.adjacentNodes[i].add(nodeToAdd);
-			}
-		}
-	}
-	
-	private RetHelper mergeNodes(NFDENode root, NFDENode end, NFDENode toMergeRoot, NFDENode toMergeEnd) {
-		nodeMerger(root, toMergeRoot);
-		end.isFinal = end.isFinal || toMergeEnd.isFinal;
-		toMergeEnd.adjacentNodes[NFDENode.EPSILON].add(end);
-		return new RetHelper(root, end);
-	}
-	
-	private RetHelper concatNodes(NFDENode root, NFDENode end, NFDENode toMergeRoot, NFDENode toMergeEnd) {
-		end.adjacentNodes[NFDENode.EPSILON].add(toMergeRoot);
-		toMergeEnd.isFinal = toMergeEnd.isFinal || end.isFinal;
-		return new RetHelper(root, toMergeEnd);
-	}
-
-
+        return s;
+    }
 }
