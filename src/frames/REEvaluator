@@ -20,9 +20,7 @@ import modules.ReversePolishNotation;
 public class REEvaluator {
 
 	public static void main(String[] args) {
-
-
-		//Procesamiento de un archivo de texto con dicho AFN
+		//JFile Chooser to make our evaluator more intuitive.
 		JFileChooser chooser=new JFileChooser();
 
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -40,7 +38,6 @@ public class REEvaluator {
 			if(confirm==JOptionPane.YES_OPTION) {
 				//Calls the method that tests the Strings contained in the txt file
 				evaluateFile(path);
-
 			}
 		}
 
