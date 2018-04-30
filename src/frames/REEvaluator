@@ -92,10 +92,10 @@ public class REEvaluator {
 					for(int i=0; i<line.length();i++) {
 						String temp=line.substring(i, line.length()-1);
 						//Evaluates if current string is accepted by the NFA. Prints if true.
-						//if() {//Here goes evaluation method that returns a boolean if accepted.
+						if(true) {//Here goes evaluation method that returns a boolean if accepted.
 						System.out.println(temp);
 						bw.write(temp);;
-						//}
+						}
 					}
 					line=br.readLine();
 				}
