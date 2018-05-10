@@ -16,16 +16,19 @@ public class NFDeToNFD {
 	@SuppressWarnings("unchecked")
 	private LinkedList<Integer> eTransition(LinkedList<Integer> list) {
 		LinkedList<Integer> statesSet = (LinkedList<Integer>) list.clone();
+		boolean repeat = false;
 		for(int i = 0; i < list.size(); i++) {
 			int j = 0;
 			while(j < this.transitionMatrix[list.get(i)][NFDeToNFD.EPSILON].size()) {
 				if(!statesSet.contains(this.transitionMatrix[list.get(i)][NFDeToNFD.EPSILON].get(j))) {
 					statesSet.add(this.transitionMatrix[list.get(i)][NFDeToNFD.EPSILON].get(j));
-					j ++;
+					repeat = true;
 				}
+				j ++;
 			}
 		}
-		return statesSet;
+		if(!repeat) return statesSet;
+		return eTransition(statesSet);
 	}
 	
 	@SuppressWarnings("unchecked")
