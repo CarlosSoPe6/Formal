@@ -70,7 +70,7 @@ public class REEvaluator {
 
 			//System.out.println("\nNFD");
 			//We convert that NFA-E TO NFA
-			LinkedList<Integer>[][] nfdMatrix = new NFDeToNFD(nfdeMatrix).convert();
+//			LinkedList<Integer>[][] nfdMatrix = new NFDeToNFD(nfdeMatrix).convert();
 			/*for(int i = 0; i < nfdMatrix.length; i ++) {
         	System.out.print("q" + i + " ");
 			for(int j = 0; j < 254; j ++) {
@@ -84,7 +84,7 @@ public class REEvaluator {
 			fw = new FileWriter("Evaluation_Result_AAC.txt");//AAC stands for Alfredo Alejandro Carlos initials.
 			BufferedWriter bw=new BufferedWriter(fw);
 			//After we have the automaton and our result file open, we evaluate the file's next lines
-			String text="";
+//			String text="";
 			try { 
 				String line= br.readLine();
 				while(line != null) {
