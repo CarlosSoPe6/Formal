@@ -5,7 +5,9 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Scanner;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -17,10 +19,12 @@ import modules.NodeToMatrixConverter;
 import modules.RPNToNFDE;
 import modules.ReversePolishNotation;
 
-public class REEvaluator {
+public class REEvaluator{
 
 	public static void main(String[] args) {
-		//JFile Chooser to make our evaluator more intuitive.
+
+
+		//Procesamiento de un archivo de texto con dicho AFN
 		JFileChooser chooser=new JFileChooser();
 
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -41,9 +45,92 @@ public class REEvaluator {
 			}
 		}
 
+
 	}
 
-	private static void evaluateFile(String path) {
+	static HashSet<String> answers=new HashSet<>();
+
+	public static boolean isAccepted(LinkedList<Integer>[][] automata, String string) {
+		int currentState=0,charAt=0;
+		boolean accepted= false;
+		char symbol=string.charAt(charAt);
+		LinkedList<Integer> nextStates=automata[currentState][symbol-' '];
+		for(int nextState: nextStates) {
+			if(charAt+1<string.length())
+				accepted=isAcceptedRecursive(automata, string ,nextState,charAt+1);
+			if(accepted)break;
+		}
+		return accepted;
+	}
+
+	public static boolean isAcceptedRecursive(LinkedList<Integer>[][] automata, String string,int currentState, int charAt) {
+		boolean accepted= false;
+		char symbol=string.charAt(charAt);
+		LinkedList<Integer> nextStates=automata[currentState][symbol-' '];
+		for(int nextState: nextStates) {
+			if(charAt+1<string.length())	{
+				accepted=isAcceptedRecursive(automata, string,nextState,charAt+1);
+			}
+			if(nextState==(automata.length-1) && charAt+1>=string.length()) {
+				currentState=nextState;
+				//				System.out.println(string.substring(0, charAt+1));
+				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
+				return true;
+			}
+			if(accepted) break;
+		}
+		if(currentState==(automata.length-1)) {//If currentState is final
+			//			System.out.println(string.substring(0, charAt));
+			answers.add(string.substring(0, charAt));
+			return true;
+		}
+		return accepted;
+	}
+
+	public static void evaluateFileFromConsole() {
+		Scanner s=new Scanner(System.in);
+		String rpn = new ReversePolishNotation(s.nextLine()).getPostfix();
+		//JOptionPane.showMessageDialog(null, rpn);
+		RPNToNFDE converter = new RPNToNFDE();
+
+		//We convert that expression to NFA-E
+		RPNToNFDE.NFDENode n = converter.convert(rpn);
+
+		LinkedList<Integer>[][] nfdeMatrix = NodeToMatrixConverter.convert(n);
+		System.out.println("\nNFAe");
+		for(int i = 0; i < nfdeMatrix.length; i ++) {
+			System.out.print("q" + i + " ");
+			for(int j = 0; j < 255; j ++) {
+				if(!nfdeMatrix[i][j].isEmpty()) System.out.print(nfdeMatrix[i][j].toString() + (char) (j + ' ') + " ");
+			}
+			System.out.println();
+		}
+		//We convert that NFA-E TO NFA
+		LinkedList<Integer>[][] nfdMatrix = new NFDeToNFD(nfdeMatrix).convert();
+		System.out.println("\nNFA");
+		for(int i = 0; i < nfdMatrix.length; i ++) {
+			System.out.print("q" + i + " ");
+			for(int j = 0; j < 254; j ++) {
+				if(!nfdeMatrix[i][j].isEmpty()) System.out.print(nfdMatrix[i][j].toString() + (char) (j + ' ') + " ");
+			}
+			System.out.println();
+		}
+
+		String string=s.nextLine();
+		while(!string.equals("-1")){
+			for(int i=0; i<string.length();i++) {
+				isAccepted(nfdMatrix,string.substring(i,string.length()));
+			}
+			for(String accepted:answers)//Prints all results from iterations without repeats thanks to Set properties
+				System.out.println(accepted);
+			answers.clear();//Clears set for next iteration
+			string=s.nextLine();
+		}
+		s.close();
+	}
+
+
+	public static void evaluateFile(String path) {
 		//First we open our file
 		FileReader fr;
 		try {
@@ -59,50 +146,45 @@ public class REEvaluator {
 			RPNToNFDE.NFDENode n = converter.convert(rpn);
 
 			LinkedList<Integer>[][] nfdeMatrix = NodeToMatrixConverter.convert(n);
-			/*System.out.println("\nNFDe");
-		for(int i = 0; i < nfdeMatrix.length; i ++) {
-			System.out.print("q" + i + " ");
-			for(int j = 0; j < 255; j ++) {
-				if(!nfdeMatrix[i][j].isEmpty()) System.out.print(nfdeMatrix[i][j].toString() + (char) (j + ' ') + " ");
+			System.out.println("\nNFAe");
+			for(int i = 0; i < nfdeMatrix.length; i ++) {
+				System.out.print("q" + i + " ");
+				for(int j = 0; j < 255; j ++) {
+					if(!nfdeMatrix[i][j].isEmpty()) System.out.print(nfdeMatrix[i][j].toString() + (char) (j + ' ') + " ");
+				}
+				System.out.println();
 			}
-			System.out.println();
-		}*/
 
-			//System.out.println("\nNFD");
+
 			//We convert that NFA-E TO NFA
-//			LinkedList<Integer>[][] nfdMatrix = new NFDeToNFD(nfdeMatrix).convert();
-			/*for(int i = 0; i < nfdMatrix.length; i ++) {
-        	System.out.print("q" + i + " ");
-			for(int j = 0; j < 254; j ++) {
-				if(!nfdMatrix[i][j].isEmpty()) System.out.print(nfdMatrix[i][j].toString() + (char) (j + ' ') + " ");
+			LinkedList<Integer>[][] nfdMatrix = new NFDeToNFD(nfdeMatrix).convert();
+			System.out.println("\nNFA");
+			for(int i = 0; i < nfdMatrix.length; i ++) {
+				System.out.print("q" + i + " ");
+				for(int j = 0; j < 254; j ++) {
+					if(!nfdeMatrix[i][j].isEmpty()) System.out.print(nfdMatrix[i][j].toString() + (char) (j + ' ') + " ");
+				}
+				System.out.println();
 			}
-			System.out.println();
-		}*/
-
 
 			FileWriter fw;
 			fw = new FileWriter("Evaluation_Result_AAC.txt");//AAC stands for Alfredo Alejandro Carlos initials.
 			BufferedWriter bw=new BufferedWriter(fw);
-			//After we have the automaton and our result file open, we evaluate the file's next lines
-//			String text="";
+
 			try { 
-				String line= br.readLine();
-				while(line != null) {
-					//
-					for(int i=0; i<line.length();i++) {
-						String temp=line.substring(i, line.length()-1);
-						//Evaluates if current string is accepted by the NFA. Prints if true.
-						if(true) {//Here goes evaluation method that returns a boolean if accepted.
-						System.out.println(temp);
-						bw.write(temp);;
-						}
+				String string=br.readLine();
+				while(string!=null){
+					for(int i=0; i<string.length();i++) {
+						isAccepted(nfdMatrix,string.substring(i,string.length()));
 					}
-					line=br.readLine();
+					for(String accepted:answers)//Prints all results from iterations without repeats thanks to Set properties
+						bw.write(accepted);
+					answers.clear();//Clears set for next iteration
+					string=br.readLine();
 				}
 			} catch (IOException e1) {
 				System.out.println("File Writing error.");
 			} 
-			//Closing buffers and files
 			bw.close();
 			fw.close();
 			br.close();
@@ -114,5 +196,8 @@ public class REEvaluator {
 			System.out.println("File error.");
 		}
 	}
+
+
+
 
 }
