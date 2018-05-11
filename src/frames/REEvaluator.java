@@ -64,7 +64,7 @@ public class REEvaluator{
 				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
 				return true;
 			}
-			if(accepted) break;
+			//if(accepted) break;
 		}
 		
 		LinkedList<Integer> wildcardStates=automata[currentState]['&'-' '];
@@ -77,7 +77,7 @@ public class REEvaluator{
 				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
 				return true;
 			}
-			if(accepted) break;
+			//if(accepted) break;
 		}
 		if(currentState==(automata.length-1)) {//If currentState is final
 			answers.add(string.substring(0, charAt));
@@ -101,7 +101,7 @@ public class REEvaluator{
 				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
 				return true;
 			}
-			if(accepted) break;
+			//if(accepted) break;
 		}
 		LinkedList<Integer> wildcardStates=automata[currentState]['&'-' '];
 		for(int nextState: wildcardStates) {
@@ -114,7 +114,7 @@ public class REEvaluator{
 				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
 				return true;
 			}
-			if(accepted) break;
+			//if(accepted) break;
 		}
 		if(currentState==(automata.length-1)) {//If currentState is final
 			//			System.out.println(string.substring(0, charAt));
