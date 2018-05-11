@@ -79,6 +79,19 @@ public class REEvaluator{
 			}
 			if(accepted) break;
 		}
+		LinkedList<Integer> wildcardStates=automata[currentState]['&'-' '];
+		for(int nextState: wildcardStates) {
+			if(charAt+1<string.length())	{
+				accepted=isAcceptedRecursive(automata, string,nextState,charAt+1);
+			}
+			if(nextState==(automata.length-1) && charAt+1>=string.length()) {
+				currentState=nextState;
+				//				System.out.println(string.substring(0, charAt+1));
+				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
+				return true;
+			}
+			if(accepted) break;
+		}
 		if(currentState==(automata.length-1)) {//If currentState is final
 			//			System.out.println(string.substring(0, charAt));
 			answers.add(string.substring(0, charAt));
