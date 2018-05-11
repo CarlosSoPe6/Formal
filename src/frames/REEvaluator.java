@@ -56,10 +56,34 @@ public class REEvaluator{
 		char symbol=string.charAt(charAt);
 		LinkedList<Integer> nextStates=automata[currentState][symbol-' '];
 		for(int nextState: nextStates) {
-			if(charAt+1<string.length())
-				accepted=isAcceptedRecursive(automata, string ,nextState,charAt+1);
-			if(accepted)break;
+			if(charAt+1<string.length())	{
+				accepted=isAcceptedRecursive(automata, string,nextState,charAt+1);
+			}
+			if(nextState==(automata.length-1) && charAt+1>=string.length()) {
+				currentState=nextState;
+				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
+				return true;
+			}
+			if(accepted) break;
 		}
+		
+		LinkedList<Integer> wildcardStates=automata[currentState]['&'-' '];
+		for(int nextState: wildcardStates) {
+			if(charAt+1<string.length())	{
+				accepted=isAcceptedRecursive(automata, string,nextState,charAt+1);
+			}
+			if(nextState==(automata.length-1) && charAt+1>=string.length()) {
+				currentState=nextState;
+				answers.add(string.substring(0,charAt+1)); //charAt+1 since nextState is final and there's no more input to process.
+				return true;
+			}
+			if(accepted) break;
+		}
+		if(currentState==(automata.length-1)) {//If currentState is final
+			answers.add(string.substring(0, charAt));
+			return true;
+		}
+		
 		return accepted;
 	}
 
