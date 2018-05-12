@@ -131,7 +131,7 @@ public class REEvaluator{
 		RPNToNFDE converter = new RPNToNFDE();
 
 		//We convert that expression to NFA-E
-		RPNToNFDE.NFDENode n = converter.convert(rpn);
+		RPNToNFDE.State n = converter.convert(rpn);
 
 		LinkedList<Integer>[][] nfdeMatrix = NodeToMatrixConverter.convert(n);
 		System.out.println("\nNFAe");
@@ -180,7 +180,7 @@ public class REEvaluator{
 			RPNToNFDE converter = new RPNToNFDE();
 
 			//We convert that expression to NFA-E
-			RPNToNFDE.NFDENode n = converter.convert(rpn);
+			RPNToNFDE.State n = converter.convert(rpn);
 
 			LinkedList<Integer>[][] nfdeMatrix = NodeToMatrixConverter.convert(n);
 			System.out.println("\nNFAe");

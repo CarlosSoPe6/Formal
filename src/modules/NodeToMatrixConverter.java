@@ -12,21 +12,22 @@ public class NodeToMatrixConverter {
 	public static LinkedList<Integer>[][] convert(RPNToNFDE.State root){
         Queue<RPNToNFDE.State> toVisit = new PriorityQueue<>();
 
-        LinkedList<Integer>[][] matrixBuilder = new LinkedList[RPNToNFDE.getCurrentNode()][];
+        TreeSet<Integer>[][] matrixBuilder = new TreeSet[RPNToNFDE.getCurrentNode()][];
         TreeSet<Integer> visited = new TreeSet<>();
         TreeSet<Integer> processed = new TreeSet<>();
         LinkedList<Integer>[] column;
+        TreeSet<Integer>[] buildCol;
 
         LinkedList<Integer>[][] finalMatrix;
 
         int realStateNumber = 0;
 
         // Real state number base case (root node)
-        column = new LinkedList[Character.MAX_VALUE];
-        for(int k = 0; k < column.length; k++){
-            column[k] = new LinkedList<Integer>();
+        buildCol = new TreeSet[256];
+        for(int k = 0; k < buildCol.length; k++){
+            buildCol[k] = new TreeSet<Integer>();
         }
-        matrixBuilder[0] = column;
+        matrixBuilder[0] = buildCol;
 
 
         toVisit.offer(root);
@@ -49,7 +50,14 @@ public class NodeToMatrixConverter {
         finalMatrix = new LinkedList[matrixBuilder.length][];
 
         for(int i = 0; i < matrixBuilder.length; i++){
-            finalMatrix[i] = matrixBuilder[i];
+            column = new LinkedList[matrixBuilder[i].length];
+            for(int k = 0; k < matrixBuilder[i].length; k++){
+                column[k] = new LinkedList<>();
+                for (Integer integer : matrixBuilder[i][k]) {
+                    column[k].add(integer);
+                }
+            }
+            finalMatrix[i] = column;
         }
 
         return finalMatrix;
@@ -67,7 +75,7 @@ public class NodeToMatrixConverter {
     private static void buildRow(
             RPNToNFDE.State currentState,
             RPNToNFDE.State out,
-            LinkedList<Integer>[][] matrixBuilder,
+            TreeSet<Integer>[][] matrixBuilder,
             TreeSet<Integer> visited,
             Queue<RPNToNFDE.State> toVisit,
             TreeSet<Integer> processed){
@@ -77,13 +85,12 @@ public class NodeToMatrixConverter {
         System.out.println((out.getStateNumber() + ":") + currentState.getStateNumber() + " " + visited.size());
         if(!processed.contains(out.getStateNumber())) {
             processed.add(out.getStateNumber());
-            LinkedList<Integer>[] column = new LinkedList[Character.MAX_VALUE];
+            TreeSet<Integer>[] column = new TreeSet[256];
             for (int k = 0; k < column.length; k++) {
-                column[k] = new LinkedList<Integer>();
+                column[k] = new TreeSet<Integer>();
             }
             matrixBuilder[out.getStateNumber()] = column;
         }
         matrixBuilder[currentState.getStateNumber()][out.getC()].add(out.getStateNumber());
-
     }
 }
