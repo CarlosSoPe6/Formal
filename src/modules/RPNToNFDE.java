@@ -1,6 +1,5 @@
 package modules;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -144,6 +143,8 @@ public class RPNToNFDE {
         NodeFactory e2;
         NodeFactory e1;
 
+        State start = new State(State.EPSILON, null, null);
+
         State s;
         State split;
 
@@ -196,8 +197,9 @@ public class RPNToNFDE {
             }
         }
 
+        start.out1 =  nodeFactoryStack.pop().start;
 
-        return nodeFactoryStack.pop().start;
+        return start;
     }
 
     /**

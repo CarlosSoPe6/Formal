@@ -12,7 +12,7 @@ public class NodeToMatrixConverter {
 	public static LinkedList<Integer>[][] convert(RPNToNFDE.State root){
         Queue<RPNToNFDE.State> toVisit = new PriorityQueue<>();
 
-        LinkedList<Integer>[][] matrixBuilder = new LinkedList[RPNToNFDE.getCurrentNode() + 1][];
+        LinkedList<Integer>[][] matrixBuilder = new LinkedList[RPNToNFDE.getCurrentNode()][];
         TreeSet<Integer> visited = new TreeSet<>();
         TreeSet<Integer> processed = new TreeSet<>();
         LinkedList<Integer>[] column;
@@ -41,7 +41,7 @@ public class NodeToMatrixConverter {
                 visited.add(currentNode.getStateNumber());
                 out0 = currentNode.getOut0();
                 buildRow(currentNode, out0, matrixBuilder, visited, toVisit, processed);
-                out1 = currentNode.getOut0();
+                out1 = currentNode.getOut1();
                 buildRow(currentNode, out1, matrixBuilder, visited, toVisit, processed);
             }
         }
@@ -73,17 +73,17 @@ public class NodeToMatrixConverter {
             TreeSet<Integer> processed){
 	    if(out == null) return;
 
-        toVisit.add(out);
+        toVisit.offer(out);
         System.out.println((out.getStateNumber() + ":") + currentState.getStateNumber() + " " + visited.size());
-        if(!visited.contains(out.getStateNumber()) && !processed.contains(out.getStateNumber())) {
+        if(!processed.contains(out.getStateNumber())) {
             processed.add(out.getStateNumber());
             LinkedList<Integer>[] column = new LinkedList[Character.MAX_VALUE];
             for (int k = 0; k < column.length; k++) {
                 column[k] = new LinkedList<Integer>();
             }
             matrixBuilder[out.getStateNumber()] = column;
-            matrixBuilder[currentState.getStateNumber()][out.getC()].add(out.getStateNumber());
         }
+        matrixBuilder[currentState.getStateNumber()][out.getC()].add(out.getStateNumber());
 
     }
 }
