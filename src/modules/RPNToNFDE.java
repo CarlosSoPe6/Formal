@@ -16,7 +16,7 @@ public class RPNToNFDE {
         /**
          * Stores the char that points the text node
          */
-        private char c;
+        private final char c;
 
         /**
          * Stores the first out
@@ -39,7 +39,7 @@ public class RPNToNFDE {
         private static final char EPSILON = 254;
 
         private State(){
-
+            c = 0;
         }
 
         /**
@@ -48,8 +48,8 @@ public class RPNToNFDE {
          */
         private State(char c){
             this.c = c;
-            this.out0 = getNill();
-            this.out1 = getNill();
+            this.out0 = null;
+            this.out1 = null;
         }
 
         /**
@@ -73,8 +73,16 @@ public class RPNToNFDE {
             return stateNumber;
         }
 
-        private State getNill(){
-            return new State();
+        public State getOut0() {
+            return out0;
+        }
+
+        public State getOut1() {
+            return out1;
+        }
+
+        public char getC() {
+            return c;
         }
     }
 
@@ -99,17 +107,21 @@ public class RPNToNFDE {
         private NodeFactory(State s){
             this.start = s;
             this.outs = new LinkedList<>();
+            this.outs.add(s);
         }
 
-        /**
-         * Creates a new NodeFactory with the referenced linked lists
-         * @param s
-         * @param list
-         */
-        private NodeFactory(State s, LinkedList<State> list){
+        private NodeFactory(State s, State out){
             this.start = s;
-            this.outs = list;
+            this.outs = new LinkedList<>();
+            this.outs.add(out);
         }
+
+        private NodeFactory(State s, LinkedList<State> outs){
+            this.start = s;
+            this.outs = new LinkedList<>();
+            this.outs.addAll(outs);
+        }
+
     }
 
     /**
@@ -138,19 +150,16 @@ public class RPNToNFDE {
                 case ':':
                     e2 = nodeFactoryStack.pop();
                     e1 = nodeFactoryStack.pop();
-                    // TODO: Lists
                     concat(e1.outs, e2.start);
                     f = new NodeFactory(e1.start, e2.outs);
                     nodeFactoryStack.push(f);
                     break;
-
                 // Union
                 case ',':
                     e2 = nodeFactoryStack.pop();
                     e1 = nodeFactoryStack.pop();
                     split = new State(State.EPSILON, e1.start, e2.start);
-                    // TODO: Lists
-                    f = new NodeFactory(split, union(e1.outs, e2.outs));
+                    f = new NodeFactory(split, joinOuts(e1.outs, e2.outs));
                     nodeFactoryStack.push(f);
                     break;
 
@@ -158,20 +167,21 @@ public class RPNToNFDE {
                 case '*':
                     e1 = nodeFactoryStack.pop();
                     split = new State(State.EPSILON, e1.start, null);
-                    // TODO: Lists
-                    kleene(e1.outs);
-                    f = new NodeFactory(split, null);
+                    concat(e1.outs, split);
+                    f = new NodeFactory(split, split);
                     nodeFactoryStack.push(f);
                     break;
 
                 // One or more
                 case '+':
                     e1 = nodeFactoryStack.pop();
-                    // TODO: Positive
-                    // nodeFactoryStack.push(f);
+                    split = new State(State.EPSILON, e1.start, null);
+                    concat(e1.outs, split);
+                    f = new NodeFactory(e1.start, split);
+                    nodeFactoryStack.push(f);
                     break;
 
-                // Normal character
+                // Alphabet character
                 default:
                     // Create  a new node and add it to nodeFactory
                     s = new State(element, null, null);
@@ -181,43 +191,30 @@ public class RPNToNFDE {
             }
         }
 
-        while(!nodeFactoryStack.isEmpty()){
-            f = nodeFactoryStack.pop();
-        }
 
-        return f.start;
+        return nodeFactoryStack.pop().start;
     }
 
     /**
      * Concat two nodes. Connects all the nodes outputList to e2
-     * @param outputList Nodes to change
+     * @param l List of nodes
      * @param e2 Next node
      */
-    private void concat(LinkedList<State> outputList, State e2){
-        Iterator<State> ite = outputList.iterator();
-        State iteratorElement;
-
-        while(ite.hasNext()){
-            iteratorElement = ite.next();
-            iteratorElement.out1 = e2;
-            iteratorElement.out0 = null;
+    private void concat(LinkedList<State> l, State e2){
+        for(State s : l){
+            if(s.out0 == null){
+                s.out0 = e2;
+            }
+            if(s.out1 == null){
+                s.out1 = e2;
+            }
         }
     }
 
-    private LinkedList<State> union(LinkedList<State> e1, LinkedList<State> e2){
-        LinkedList<State> newList = new LinkedList<>();
-
-        newList.addAll(e1);
-        newList.addAll(e2);
-
-        return newList;
-    }
-
-    private void kleene(LinkedList<State> e){
-
-    }
-
-    private void positive() {
-
+    private LinkedList<State> joinOuts(LinkedList<State> s1, LinkedList<State> s2){
+        LinkedList<State> ret = new LinkedList<>();
+        ret.addAll(s1);
+        ret.addAll(s2);
+        return ret;
     }
 }
