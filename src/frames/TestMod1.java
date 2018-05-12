@@ -18,14 +18,14 @@ public class TestMod1 {
 		JOptionPane.showMessageDialog(null, rpn);
 		
 		RPNToNFDE converter = new RPNToNFDE();
-		RPNToNFDE.NFDENode n = converter.convert(rpn);
+		RPNToNFDE.State n = converter.convert(rpn);
 
 		LinkedList<Integer>[][] nfdeMatrix = NodeToMatrixConverter.convert(n);
 		System.out.println("\nNFDe");
 		for(int i = 0; i < nfdeMatrix.length; i ++) {
 			System.out.print("q" + i + " ");
 			for(int j = 0; j < 255; j ++) {
-				if(!nfdeMatrix[i][j].isEmpty()) System.out.print(nfdeMatrix[i][j].toString() + (char) (j + ' ') + " ");
+				if(!nfdeMatrix[i][j].isEmpty()) System.out.print(nfdeMatrix[i][j].toString() + (char) (j) + " ");
 			}
 			System.out.println();
 		}
@@ -35,7 +35,7 @@ public class TestMod1 {
         for(int i = 0; i < nfdMatrix.length; i ++) {
         	System.out.print("q" + i + " ");
 			for(int j = 0; j < 254; j ++) {
-				if(!nfdMatrix[i][j].isEmpty()) System.out.print(nfdMatrix[i][j].toString() + (char) (j + ' ') + " ");
+				if(!nfdMatrix[i][j].isEmpty()) System.out.print(nfdMatrix[i][j].toString() + (char) (j) + " ");
 			}
 			System.out.println();
 		}
