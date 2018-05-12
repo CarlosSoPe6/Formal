@@ -1,5 +1,7 @@
 package modules;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Stack;
 
 public class RPNToNFDE {
@@ -36,6 +38,20 @@ public class RPNToNFDE {
          */
         private static final char EPSILON = 254;
 
+        private State(){
+
+        }
+
+        /**
+         * Creates a new state
+         * @param c The char
+         */
+        private State(char c){
+            this.c = c;
+            this.out0 = getNill();
+            this.out1 = getNill();
+        }
+
         /**
          * Creates a new state
          * @param c the char
@@ -56,6 +72,10 @@ public class RPNToNFDE {
         public int getStateNumber() {
             return stateNumber;
         }
+
+        private State getNill(){
+            return new State();
+        }
     }
 
     /**
@@ -63,32 +83,41 @@ public class RPNToNFDE {
      */
     private class NodeFactory {
         /**
-         *
+         * Points at the start state for the fragment
          */
         private State start;
 
         /**
-         *
+         * List of pointers to State that are not yet connected to anything
          */
-        private State[] outs;
+        private LinkedList<State> outs;
 
         /**
-         * Creates a new NodeFactory
+         * Creates a new NodeFactory with a empty outs list
          * @param s Start
-         * @param outs The current outputs
          */
-        private NodeFactory(State s, State ... outs){
+        private NodeFactory(State s){
             this.start = s;
-            this.outs = outs;
+            this.outs = new LinkedList<>();
+        }
+
+        /**
+         * Creates a new NodeFactory with the referenced linked lists
+         * @param s
+         * @param list
+         */
+        private NodeFactory(State s, LinkedList<State> list){
+            this.start = s;
+            this.outs = list;
         }
     }
 
     /**
      * Converts a reversed polish notation string to a NFA.
-     * @param post Regex in reverse polish notation
+     * @param regex Regex in reverse polish notation
      * @return The NFAs root state
      */
-    public State convert(String post){
+    public State convert(String regex){
         char element;
 
         // Stores the previous states
@@ -101,15 +130,16 @@ public class RPNToNFDE {
         State s;
         State split;
 
-        // Iterate over the string post
-        for(int i = 0; i < post.length(); i++){
-            element = post.charAt(i);
+        // Iterate over the string regex
+        for(int i = 0; i < regex.length(); i++){
+            element = regex.charAt(i);
             switch (element){
                 // Concatenation
                 case ':':
                     e2 = nodeFactoryStack.pop();
                     e1 = nodeFactoryStack.pop();
-                    // TODO: Concat languages
+                    // TODO: Lists
+                    concat(e1.outs, e2.start);
                     f = new NodeFactory(e1.start, e2.outs);
                     nodeFactoryStack.push(f);
                     break;
@@ -118,15 +148,20 @@ public class RPNToNFDE {
                 case ',':
                     e2 = nodeFactoryStack.pop();
                     e1 = nodeFactoryStack.pop();
-                    // TODO: Union languages
-                    // nodeFactoryStack.push(f);
+                    split = new State(State.EPSILON, e1.start, e2.start);
+                    // TODO: Lists
+                    f = new NodeFactory(split, union(e1.outs, e2.outs));
+                    nodeFactoryStack.push(f);
                     break;
 
                 // Zero or more
                 case '*':
                     e1 = nodeFactoryStack.pop();
-                    // TODO: Kleene
-                    // nodeFactoryStack.push(f);
+                    split = new State(State.EPSILON, e1.start, null);
+                    // TODO: Lists
+                    kleene(e1.outs);
+                    f = new NodeFactory(split, null);
+                    nodeFactoryStack.push(f);
                     break;
 
                 // One or more
@@ -140,10 +175,9 @@ public class RPNToNFDE {
                 default:
                     // Create  a new node and add it to nodeFactory
                     s = new State(element, null, null);
-                    f = new NodeFactory(s, s.out0);
+                    f = new NodeFactory(s);
                     nodeFactoryStack.push(f);
                     break;
-
             }
         }
 
@@ -155,17 +189,35 @@ public class RPNToNFDE {
     }
 
     /**
-     * Merges two lists
-     * @param a first list
-     * @param b second list
-     * @return Two lists merged
+     * Concat two nodes. Connects all the nodes outputList to e2
+     * @param outputList Nodes to change
+     * @param e2 Next node
      */
-    private State[] stateMerge(State[] a, State[] b){
-        State[] s = new State[a.length + b.length];
+    private void concat(LinkedList<State> outputList, State e2){
+        Iterator<State> ite = outputList.iterator();
+        State iteratorElement;
 
-        System.arraycopy(a, 0, s, 0, a.length);
-        System.arraycopy(b, a.length, s, a.length, b.length);
+        while(ite.hasNext()){
+            iteratorElement = ite.next();
+            iteratorElement.out1 = e2;
+            iteratorElement.out0 = null;
+        }
+    }
 
-        return s;
+    private LinkedList<State> union(LinkedList<State> e1, LinkedList<State> e2){
+        LinkedList<State> newList = new LinkedList<>();
+
+        newList.addAll(e1);
+        newList.addAll(e2);
+
+        return newList;
+    }
+
+    private void kleene(LinkedList<State> e){
+
+    }
+
+    private void positive() {
+
     }
 }
