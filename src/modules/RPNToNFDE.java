@@ -11,7 +11,7 @@ public class RPNToNFDE {
     /**
      * Node util
      */
-    public class State {
+    public class State implements Comparable<State>{
 
         /**
          * Stores the char that points the text node
@@ -36,7 +36,7 @@ public class RPNToNFDE {
         /**
          * The empty character
          */
-        private static final char EPSILON = 254;
+        public static final char EPSILON = 254;
 
         private State(){
             c = 0;
@@ -83,6 +83,11 @@ public class RPNToNFDE {
 
         public char getC() {
             return c;
+        }
+
+        @Override
+        public int compareTo(State o) {
+            return this.stateNumber - o.stateNumber;
         }
     }
 
@@ -217,4 +222,9 @@ public class RPNToNFDE {
         ret.addAll(s2);
         return ret;
     }
+
+    public static int getCurrentNode() {
+        return currentNode;
+    }
+
 }

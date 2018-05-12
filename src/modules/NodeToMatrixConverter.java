@@ -10,9 +10,9 @@ public class NodeToMatrixConverter {
      */
     @SuppressWarnings("unchecked")
 	public static LinkedList<Integer>[][] convert(RPNToNFDE.State root){
-        Queue<RPNToNFDE.State> toVisit = new LinkedList<>();
+        Queue<RPNToNFDE.State> toVisit = new PriorityQueue<>();
 
-        ArrayList<LinkedList<Integer>[]> matrixBuilder = new ArrayList<>();
+        LinkedList<Integer>[][] matrixBuilder = new LinkedList[RPNToNFDE.getCurrentNode() + 1][];
         TreeSet<Integer> visited = new TreeSet<>();
         TreeSet<Integer> processed = new TreeSet<>();
         LinkedList<Integer>[] column;
@@ -26,7 +26,7 @@ public class NodeToMatrixConverter {
         for(int k = 0; k < column.length; k++){
             column[k] = new LinkedList<Integer>();
         }
-        matrixBuilder.add(column);
+        matrixBuilder[0] = column;
 
 
         toVisit.offer(root);
@@ -46,17 +46,17 @@ public class NodeToMatrixConverter {
             }
         }
 
-        finalMatrix = new LinkedList[matrixBuilder.size()][];
+        finalMatrix = new LinkedList[matrixBuilder.length][];
 
-        for(int i = 0; i < matrixBuilder.size(); i++){
-            finalMatrix[i] = matrixBuilder.get(i);
+        for(int i = 0; i < matrixBuilder.length; i++){
+            finalMatrix[i] = matrixBuilder[i];
         }
 
         return finalMatrix;
     }
 
     /**
-     * 
+     *
      * @param currentState
      * @param out
      * @param matrixBuilder
@@ -67,7 +67,7 @@ public class NodeToMatrixConverter {
     private static void buildRow(
             RPNToNFDE.State currentState,
             RPNToNFDE.State out,
-            ArrayList<LinkedList<Integer>[]> matrixBuilder,
+            LinkedList<Integer>[][] matrixBuilder,
             TreeSet<Integer> visited,
             Queue<RPNToNFDE.State> toVisit,
             TreeSet<Integer> processed){
@@ -81,8 +81,8 @@ public class NodeToMatrixConverter {
             for (int k = 0; k < column.length; k++) {
                 column[k] = new LinkedList<Integer>();
             }
-            matrixBuilder.add(column);
-            matrixBuilder.get(currentState.getStateNumber())[out.getC()].add(out.getStateNumber());
+            matrixBuilder[out.getStateNumber()] = column;
+            matrixBuilder[currentState.getStateNumber()][out.getC()].add(out.getStateNumber());
         }
 
     }
