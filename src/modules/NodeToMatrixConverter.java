@@ -13,8 +13,8 @@ public class NodeToMatrixConverter {
         Queue<RPNToNFDE.State> toVisit = new LinkedList<>();
 
         ArrayList<LinkedList<Integer>[]> matrixBuilder = new ArrayList<>();
-        ArrayList<Integer> map = new ArrayList<>();
-        HashSet<Integer> visited = new HashSet<>();
+        TreeSet<Integer> visited = new TreeSet<>();
+        TreeSet<Integer> processed = new TreeSet<>();
         LinkedList<Integer>[] column;
 
         LinkedList<Integer>[][] finalMatrix;
@@ -22,8 +22,7 @@ public class NodeToMatrixConverter {
         int realStateNumber = 0;
 
         // Real state number base case (root node)
-        map.add(root.getStateNumber());
-        column = new LinkedList[255];
+        column = new LinkedList[Character.MAX_VALUE];
         for(int k = 0; k < column.length; k++){
             column[k] = new LinkedList<Integer>();
         }
@@ -33,33 +32,17 @@ public class NodeToMatrixConverter {
         toVisit.offer(root);
 
         // BFS
+        RPNToNFDE.State out0;
+        RPNToNFDE.State out1;
         RPNToNFDE.State currentNode;
         while (!toVisit.isEmpty()) {
             currentNode = toVisit.poll();
             if (!visited.contains(currentNode.getStateNumber())){
                 visited.add(currentNode.getStateNumber());
-                // Mapeamos los estados a filas de la matriz
-                realStateNumber = map.indexOf(currentNode.getStateNumber());
-
-                // Iteramos por cada posible salida
-                for (int i = 0; i < currentNode.getAdjacentNodes().length; i++) {
-                    // Iteramos por cada nodo de cada salida
-
-                    for (RPNToNFDE.State n : currentNode.getAdjacentNodes()[i]) {
-                        toVisit.offer(n);
-                        System.out.println((n + ":") + realStateNumber + " " + visited.size());
-                        if(!visited.contains(n.getStateNumber())) {
-                            map.add(n.getStateNumber());
-                            column = new LinkedList[255];
-                            for(int k = 0; k < column.length; k++){
-                                column[k] = new LinkedList<Integer>();
-                            }
-                            matrixBuilder.add(column);
-
-                        }
-                        matrixBuilder.get(realStateNumber)[i].add(map.indexOf(n.getStateNumber()));
-                    }
-                }
+                out0 = currentNode.getOut0();
+                buildRow(currentNode, out0, matrixBuilder, visited, toVisit, processed);
+                out1 = currentNode.getOut0();
+                buildRow(currentNode, out1, matrixBuilder, visited, toVisit, processed);
             }
         }
 
@@ -70,5 +53,37 @@ public class NodeToMatrixConverter {
         }
 
         return finalMatrix;
+    }
+
+    /**
+     * 
+     * @param currentState
+     * @param out
+     * @param matrixBuilder
+     * @param visited
+     * @param toVisit
+     * @param processed
+     */
+    private static void buildRow(
+            RPNToNFDE.State currentState,
+            RPNToNFDE.State out,
+            ArrayList<LinkedList<Integer>[]> matrixBuilder,
+            TreeSet<Integer> visited,
+            Queue<RPNToNFDE.State> toVisit,
+            TreeSet<Integer> processed){
+	    if(out == null) return;
+
+        toVisit.add(out);
+        System.out.println((out.getStateNumber() + ":") + currentState.getStateNumber() + " " + visited.size());
+        if(!visited.contains(out.getStateNumber()) && !processed.contains(out.getStateNumber())) {
+            processed.add(out.getStateNumber());
+            LinkedList<Integer>[] column = new LinkedList[Character.MAX_VALUE];
+            for (int k = 0; k < column.length; k++) {
+                column[k] = new LinkedList<Integer>();
+            }
+            matrixBuilder.add(column);
+            matrixBuilder.get(currentState.getStateNumber())[out.getC()].add(out.getStateNumber());
+        }
+
     }
 }
