@@ -197,6 +197,13 @@ public class RPNToNFDE {
             }
         }
 
+        split = new State(State.EPSILON, null, null);
+        f = new NodeFactory(split);
+        NodeFactory endFix = nodeFactoryStack.pop();
+        concat(endFix.outs, f.start);
+        f = new NodeFactory(endFix.start, f.outs);
+        nodeFactoryStack.push(f);
+
         start.out1 =  nodeFactoryStack.pop().start;
 
         return start;
