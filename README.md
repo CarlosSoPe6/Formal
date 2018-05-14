@@ -1,2 +1,2 @@
 # Formal
-A grammar analyzer
+A automata simulator
