@@ -52,7 +52,7 @@ public class REEvaluator {
 		int currentState = 0, charAt = 0;
 		boolean accepted = false;
 		char symbol = string.charAt(charAt);
-		LinkedList<Integer> nextStates = automata[currentState][symbol - ' '];
+		LinkedList<Integer> nextStates = automata[currentState][symbol];
 		for (int nextState : nextStates) {
 			if (charAt + 1 < string.length()) {
 				accepted = isAcceptedRecursive(automata, string, nextState, charAt + 1);
@@ -66,7 +66,7 @@ public class REEvaluator {
 			// if(accepted) break;
 		}
 
-		LinkedList<Integer> wildcardStates = automata[currentState]['&' - ' '];
+		LinkedList<Integer> wildcardStates = automata[currentState]['&'];
 		for (int nextState : wildcardStates) {
 			if (charAt + 1 < string.length()) {
 				accepted = isAcceptedRecursive(automata, string, nextState, charAt + 1);
@@ -90,7 +90,7 @@ public class REEvaluator {
 	public static boolean isAcceptedRecursive(LinkedList<Integer>[][] automata, String string, int currentState, int charAt) {
 		boolean accepted = false;
 		char symbol = string.charAt(charAt);
-		LinkedList<Integer> nextStates = automata[currentState][symbol - ' '];
+		LinkedList<Integer> nextStates = automata[currentState][symbol];
 		for (int nextState : nextStates) {
 			if (charAt + 1 < string.length()) {
 				accepted = isAcceptedRecursive(automata, string, nextState, charAt + 1);
@@ -104,7 +104,7 @@ public class REEvaluator {
 			}
 			// if(accepted) break;
 		}
-		LinkedList<Integer> wildcardStates = automata[currentState]['&' - ' '];
+		LinkedList<Integer> wildcardStates = automata[currentState]['&'];
 		for (int nextState : wildcardStates) {
 			if (charAt + 1 < string.length()) {
 				accepted = isAcceptedRecursive(automata, string, nextState, charAt + 1);
@@ -194,7 +194,7 @@ public class REEvaluator {
 				System.out.print("q" + i + " ");
 				for (int j = 0; j < 255; j++) {
 					if (!nfdeMatrix[i][j].isEmpty())
-						System.out.print(nfdeMatrix[i][j].toString() + (char) (j + ' ') + " ");
+						System.out.print(nfdeMatrix[i][j].toString() + (char) (j) + " ");
 				}
 				System.out.println();
 			}
@@ -206,7 +206,7 @@ public class REEvaluator {
 				System.out.print("q" + i + " ");
 				for (int j = 0; j < 254; j++) {
 					if (!nfdeMatrix[i][j].isEmpty())
-						System.out.print(nfdMatrix[i][j].toString() + (char) (j + ' ') + " ");
+						System.out.print(nfdMatrix[i][j].toString() + (char) (j) + " ");
 				}
 				System.out.println();
 			}
@@ -222,8 +222,10 @@ public class REEvaluator {
 					for (int i = 0; i < string.length(); i++) {
 						isAccepted(nfdMatrix, string.substring(i, string.length()));
 					}
-					for (String accepted : answers)// Prints all results from iterations without repeats thanks to Set properties
+					for (String accepted : answers){// Prints all results from iterations without repeats thanks to Set properties
 						bw.write(accepted);
+						bw.write("\r\n");
+					}
 					answers.clear();// Clears set for next iteration
 					string = br.readLine();
 				}
