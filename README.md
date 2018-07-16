@@ -1,2 +1,2 @@
 # Formal
-A automata simulator
+An automata simulator
